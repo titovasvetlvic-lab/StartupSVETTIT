@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Интерактивный тест: Стартап vs малый бизнес</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: linear-gradient(145deg, #f4f7fc 0%, #e9eef5 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      margin: 0;
+    }
+    .quiz-container {
+      max-width: 780px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      border-radius: 2.5rem;
+      box-shadow: 0 25px 50px -10px rgba(0, 20, 40, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+      padding: 2.2rem 2.2rem 2.5rem;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #0b2b44;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.5rem;
+    }
+    h1 span {
+      background: #1a5e8c;
+      color: white;
+      font-size: 1rem;
+      padding: 0.2rem 0.9rem;
+      border-radius: 40px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+    .progress {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1rem 0 1.8rem 0;
+      font-weight: 500;
+      color: #1e4b6b;
+      border-bottom: 2px dashed #b8d1e5;
+      padding-bottom: 0.75rem;
+    }
+    .progress .counter {
+      background: #e2eef9;
+      padding: 0.3rem 1.2rem;
+      border-radius: 30px;
+      font-size: 0.95rem;
+      color: #0e3c5c;
+    }
+    .question {
+      font-size: 1.45rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: #0a1e2e;
+      margin-bottom: 1.8rem;
+      background: #fff;
+      padding: 1.2rem 1.5rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 6px 14px rgba(0, 30, 60, 0.06);
+      border: 1px solid #d9e6f2;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    .option {
+      background: white;
+      border: 2px solid #cfdfee;
+      border-radius: 100px;
+      padding: 1rem 1.8rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #1e3b4f;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 2px 6px rgba(0, 20, 40, 0.03);
+      text-align: left;
+      line-height: 1.4;
+    }
+    .option:hover:not(.disabled-option) {
+      background: #e5f0fa;
+      border-color: #5c9cc7;
+      transform: scale(1.01);
+      box-shadow: 0 8px 16px -8px rgba(0, 80, 130, 0.2);
+    }
+    .option.selected {
+      background: #d3e7fb;
+      border-color: #1a6fa0;
+      box-shadow: 0 0 0 2px rgba(26, 111, 160, 0.3);
+    }
+    .option.correct {
+      background: #d6f0e0;
+      border-color: #1c8b4b;
+      color: #0a3a21;
+      box-shadow: 0 0 0 2px rgba(28, 139, 75, 0.2);
+    }
+    .option.incorrect {
+      background: #ffe1de;
+      border-color: #c73b2b;
+      color: #5e1a12;
+      box-shadow: 0 0 0 2px rgba(199, 59, 43, 0.2);
+    }
+    .disabled-option {
+      cursor: default;
+      opacity: 0.8;
+    }
+    .option-letter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #d7e4f0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-weight: 700;
+      color: #1b4e6e;
+      flex-shrink: 0;
+      transition: background 0.1s;
+    }
+    .option.selected .option-letter {
+      background: #1a6fa0;
+      color: white;
+    }
+    .option.correct .option-letter {
+      background: #1c8b4b;
+      color: white;
+    }
+    .option.incorrect .option-letter {
+      background: #c73b2b;
+      color: white;
+    }
+    .feedback {
+      min-height: 80px;
+      padding: 0.9rem 1.4rem;
+      border-radius: 1.4rem;
+      margin: 1rem 0 1.4rem;
+      font-size: 1.05rem;
+      line-height: 1.5;
+      font-weight: 500;
+      background: #f8fafd;
+      border-left: 8px solid #aac7de;
+      color: #1b3a4e;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+    }
+    .feedback.success {
+      background: #e6f5ec;
+      border-left-color: #1c8b4b;
+      color: #0d3b22;
+    }
+    .feedback.error {
+      background: #ffefed;
+      border-left-color: #c73b2b;
+      color: #4d1e15;
+    }
+    .feedback.neutral {
+      background: #eef3f9;
+      border-left-color: #4d7a9b;
+      color: #14364b;
+    }
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    button {
+      background: #0e3a53;
+      border: none;
+      padding: 0.9rem 2rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: white;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 6px 14px -3px rgba(10, 40, 60, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      letter-spacing: 0.2px;
+    }
+    button:hover:not(:disabled) {
+      background: #18527a;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 20px -6px rgba(8, 40, 65, 0.4);
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    button.secondary {
+      background: white;
+      color: #1a4b6a;
+      border: 2px solid #b9d2e7;
+      box-shadow: none;
+    }
+    button.secondary:hover:not(:disabled) {
+      background: #e8f1fa;
+      border-color: #5c9cc7;
+      color: #0a2c42;
+    }
+    .result-screen {
+      text-align: center;
+      padding: 1rem 0.5rem;
+    }
+    .result-screen h2 {
+      font-size: 2rem;
+      color: #0b2b44;
+      margin-bottom: 1rem;
+    }
+    .score {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #1a6fa0;
+      background: #e2effb;
+      display: inline-block;
+      padding: 0.5rem 2.5rem;
+      border-radius: 100px;
+      margin: 1rem 0;
+      letter-spacing: 1px;
+    }
+    .result-screen p {
+      font-size: 1.2rem;
+      color: #2a4f6a;
+      margin: 1rem 0 2rem;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .flex-center {
+      display: flex;
+      justify-content: center;
+    }
+    .mt-2 {
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container" id="quizContainer">
+    <!-- Динамическое содержимое через JS -->
+  </div>
+  <script>
+    (function(){
+      // Вопросы и ответы
+      const questions = [
+        {
+          text: 'Медсестра Белка Белла открыла в своем поселке стандартный кабинет массажа. Чем является ее бизнес?',
+          options: ['Технологическим стартапом', 'Традиционным малым бизнесом'],
+          correct: 1 // индекс правильного ответа (0-based)
+        },
+        {
+          text: 'Что является главным отличием стартапа от обычного малого бизнеса?',
+          options: [
+            'Наличие строгого начальника и графика работы',
+            'Инновационность продукта и потенциал взрывного масштабирования',
+            'Обязательное использование наличных денег при расчетах'
+          ],
+          correct: 1
+        },
+        {
+          text: 'Бизнес называют «масштабируемым», если он способен:',
+          options: [
+            'Резко увеличивать количество клиентов и выручку, почти не увеличивая при этом свои расходы',
+            'Нанимать неограниченное количество медицинских сестер в один кабинет',
+            'Работать только в пределах одного конкретного процедурного кабинета'
+          ],
+          correct: 0
+        },
+        {
+          text: 'Что такое MVP (минимально жизнеспособный продукт) в технологическом предпринимательстве?',
+          options: [
+            'Самая дорогая и финальная версия медицинского оборудования',
+            'Подробный бизнес-план, написанный для получения банковского кредита',
+            'Ранняя простая версия продукта всего с одной главной функцией для быстрого тестирования на клиентах'
+          ],
+          correct: 2
+        },
+        {
+          text: 'В чем главное преимущество государственных грантов и субсидий перед инвестициями от бизнес-ангелов?',
+          options: [
+            'Государство дает деньги быстрее, чем друзья или семья.',
+            'Государство автоматически выкупает долю в вашей компании.',
+            'Это безвозвратные деньги, за которые не нужно отдавать долю в будущем бизнесе.'
+          ],
+          correct: 2
+        }
+      ];
+
+      // Состояние
+      let currentIndex = 0;          // индекс текущего вопроса
+      let selectedOption = null;     // индекс выбранного варианта (число) или null
+      let answered = false;          // был ли дан ответ на текущий вопрос (блокировка)
+      let correctAnswersCount = 0;   // счётчик правильных ответов
+      let quizFinished = false;      // флаг завершения теста
+      let userAnswers = new Array(questions.length).fill(null); // сохраняем выбранные ответы (для истории)
+
+      const container = document.getElementById('quizContainer');
+
+      // Вспомогательные функции
+      function render() {
+        if (quizFinished) {
+          renderResultScreen();
+          return;
+        }
+        renderQuestionScreen();
+      }
+
+      function renderQuestionScreen() {
+        const q = questions[currentIndex];
+        const total = questions.length;
+
+        // Формируем HTML
+        let html = `
+          <h1>🧪 Стартап & малый бизнес <span>тест</span></h1>
+          <div class="progress">
+            <span>Вопрос ${currentIndex + 1} из ${total}</span>
+            <span class="counter">Правильно: ${correctAnswersCount}</span>
+          </div>
+          <div class="question">${escapeHtml(q.text)}</div>
+          <div class="options" id="optionsContainer">
+        `;
+
+        q.options.forEach((opt, idx) => {
+          let optionClass = 'option';
+          // Если answered — подсвечиваем правильные/неправильные
+          if (answered) {
+            optionClass += ' disabled-option';
+            if (idx === q.correct) {
+              optionClass += ' correct';
+            } else if (idx === selectedOption && idx !== q.correct) {
+              optionClass += ' incorrect';
+            } else if (idx === selectedOption && idx === q.correct) {
+              // уже добавлен correct, не дублируем
+            }
+            // если выбран неправильный, но он не выделен? он выделится как incorrect
+          } else {
+            if (idx === selectedOption) {
+              optionClass += ' selected';
+            }
+          }
+
+          // Буквенная метка (а, б, в, ...)
+          const letter = String.fromCharCode(1072 + idx); // 'а' = 1072 в Unicode (кириллица)
+          // Но используем русские буквы: а, б, в, г, д
+          const letters = ['а', 'б', 'в', 'г', 'д'];
+          const letterMark = letters[idx] || (idx + 1);
+
+          html += `
+            <div class="${optionClass}" data-opt-index="${idx}" role="button" tabindex="0">
+              <span class="option-letter">${letterMark}</span>
+              <span>${escapeHtml(opt)}</span>
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+
+        // Блок обратной связи
+        let feedbackText = '';
+        let feedbackClass = 'feedback neutral';
+
+        if (answered) {
+          const isCorrect = (selectedOption === q.correct);
+          if (isCorrect) {
+            feedbackText = '✅ Верно! ' + getExplanation(currentIndex);
+            feedbackClass = 'feedback success';
+          } else {
+            const correctLetter = ['а', 'б', 'в', 'г', 'д'][q.correct];
+            const correctText = q.options[q.correct];
+            feedbackText = `❌ Неверно. Правильный ответ: ${correctLetter}) ${correctText}. ` + getExplanation(currentIndex);
+            feedbackClass = 'feedback error';
+          }
+        } else {
+          feedbackText = 'Выберите один из вариантов ответа.';
+          feedbackClass = 'feedback neutral';
+        }
+
+        html += `<div class="${feedbackClass}" id="feedbackBox">${escapeHtml(feedbackText)}</div>`;
+
+        // Кнопки
+        html += `<div class="button-group">`;
+        if (!answered) {
+          // Кнопка "Ответить" неактивна, если ничего не выбрано
+          html += `<button id="answerBtn" ${selectedOption === null ? 'disabled' : ''}>Ответить</button>`;
+        } else {
+          // После ответа кнопка "Далее" или "Результат"
+          if (currentIndex === total - 1) {
+            html += `<button id="nextBtn">Показать результат</button>`;
+          } else {
+            html += `<button id="nextBtn">Следующий вопрос →</button>`;
+          }
+        }
+        html += `<button id="restartBtn" class="secondary">Сначала</button>`;
+        html += `</div>`;
+
+        container.innerHTML = html;
+
+        // Навешиваем обработчики
+        document.querySelectorAll('.option').forEach(optDiv => {
+          optDiv.addEventListener('click', onOptionClick);
+        });
+
+        const answerBtn = document.getElementById('answerBtn');
+        if (answerBtn) answerBtn.addEventListener('click', onAnswerClick);
+
+        const nextBtn = document.getElementById('nextBtn');
+        if (nextBtn) nextBtn.addEventListener('click', onNextClick);
+
+        const restartBtn = document.getElementById('restartBtn');
+        if (restartBtn) restartBtn.addEventListener('click', resetQuiz);
+      }
+
+      function getExplanation(index) {
+        const explanations = [
+          'Кабинет массажа — это традиционный малый бизнес, а не технологический стартап.',
+          'Стартап отличают инновации и масштабируемость; обычный малый бизнес чаще работает по стандартной модели.',
+          'Масштабируемость — это рост выручки без пропорционального роста затрат.',
+          'MVP — это ранняя упрощённая версия продукта для быстрой проверки гипотез на клиентах.',
+          'Гранты и субсидии — безвозмездная помощь, в отличие от инвесторов, которым отдают долю.'
+        ];
+        return explanations[index] || '';
+      }
+
+      // Обработчик выбора варианта (до ответа)
+      function onOptionClick(e) {
+        if (answered) return; // уже ответили — клики игнорируем
+        const optDiv = e.currentTarget;
+        const idx = parseInt(optDiv.dataset.optIndex);
+        if (isNaN(idx)) return;
+
+        // Снимаем выделение со всех
+        document.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
+        // Ставим на выбранный
+        optDiv.classList.add('selected');
+        selectedOption = idx;
+
+        // Активируем кнопку "Ответить", если она есть
+        const answerBtn = document.getElementById('answerBtn');
+        if (answerBtn) answerBtn.disabled = false;
+
+        // Обновляем сообщение обратной связи (нейтральное)
+        const feedbackBox = document.getElementById('feedbackBox');
+        if (feedbackBox) {
+          feedbackBox.textContent = 'Выберите один из вариантов ответа.';
+          feedbackBox.className = 'feedback neutral';
+        }
+      }
+
+      // Обработчик кнопки "Ответить"
+      function onAnswerClick() {
+        if (answered) return;
+        if (selectedOption === null) return;
+
+        const q = questions[currentIndex];
+        const isCorrect = (selectedOption === q.correct);
+
+        if (isCorrect) {
+          correctAnswersCount++;
+        }
+        userAnswers[currentIndex] = selectedOption;
+        answered = true;
+
+        // Перерисовываем весь экран, чтобы отобразить правильные/неправильные и фидбек
+        render();
+      }
+
+      // Обработчик кнопки "Далее" / "Показать результат"
+      function onNextClick() {
+        if (currentIndex === questions.length - 1) {
+          // Завершаем тест
+          quizFinished = true;
+          render();
+        } else {
+          // Переходим к следующему вопросу
+          currentIndex++;
+          selectedOption = null;
+          answered = false;
+          render();
+        }
+      }
+
+      // Сброс теста
+      function resetQuiz() {
+        currentIndex = 0;
+        selectedOption = null;
+        answered = false;
+        correctAnswersCount = 0;
+        quizFinished = false;
+        userAnswers = new Array(questions.length).fill(null);
+        render();
+      }
+
+      // Экран результатов
+      function renderResultScreen() {
+        const total = questions.length;
+        const percent = Math.round((correctAnswersCount / total) * 100);
+        let grade = '';
+        if (percent >= 80) grade = 'Отлично! Вы хорошо разбираетесь в стартапах.';
+        else if (percent >= 60) grade = 'Хорошо, но есть над чем поработать.';
+        else grade = 'Попробуйте ещё раз, чтобы закрепить материал.';
+
+        let html = `
+          <div class="result-screen">
+            <h1 style="justify-content:center;">🏁 Тест завершён</h1>
+            <div class="score">${correctAnswersCount} / ${total}</div>
+            <p>${grade}</p>
+            <div style="margin: 2rem 0 1rem; font-size:1.1rem; color:#1b4e6e;">Правильных ответов: ${percent}%</div>
+            <div class="flex-center">
+              <button id="restartResultBtn" style="padding:1rem 2.5rem;">Пройти заново</button>
+            </div>
+          </div>
+        `;
+        container.innerHTML = html;
+
+        document.getElementById('restartResultBtn').addEventListener('click', resetQuiz);
+      }
+
+      // Экранирование HTML
+      function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      // Первый запуск
+      render();
+    })();
+  </script>
+</body>
+</html>
